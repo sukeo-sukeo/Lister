@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./style.css">
+  <title>CheckMaker</title>
+</head>
+<body>
+  <div id="container">
+    <ul id="checkLists">
+
+      <li>
+        <label for="">
+          <input type="checkbox" id="">
+          <span>test</span>
+        </label>
+      </li>
+      <li>
+        <label for="">
+          <input type="checkbox" id="">
+          <span>test</span>
+        </label>
+      </li>
+      <li>
+        <label for="">
+          <input type="checkbox" id="">
+          <span>test</span>
+        </label>
+      </li>
+      <li>
+        <label for="">
+          <input type="checkbox" id="">
+          <span>test</span>
+        </label>
+      </li>
+      <li>
+        <label for="">
+          <input type="checkbox" id="">
+          <span>test</span>
+        </label>
+      </li>
+      <li>
+        <label for="">
+          <input type="checkbox" id="">
+          <span>test</span>
+        </label>
+      </li>
+    </ul>
+  </div>
+  <!-- スマホ(iphone)の場合フル画面になるのを防ぐためplayisinlineをつける -->
+  <video id="myVideo" width="640" height="480" autoplay playsinline></video>
+
+  <button onclick="loadAndPlay()">再生する</button>
+  <button onclick="stop()">停止する</button>
+  <button onclick="capture()">キャプチャ</button>
+
+  <canvas width="640" height="480"></canvas>
+
+  <script src="./main.js"></script>
+</body>
+</html>
