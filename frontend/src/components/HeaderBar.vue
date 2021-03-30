@@ -8,8 +8,8 @@
 </template>
 
 <script>
-import MenuIcon from './componetnst_parts/MenuIcon.vue'
-import TitleLogo from './componetnst_parts/TitleLogo.vue'
+import MenuIcon from './components_parts/MenuIcon.vue'
+import TitleLogo from './components_parts/TitleLogo.vue'
 
 export default {
   name: 'HeaderBar',

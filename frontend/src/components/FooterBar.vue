@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import FooterMenu from './componetnst_parts/FooterMenu.vue'
+import FooterMenu from './components_parts/FooterMenu.vue'
 export default {
   components: { FooterMenu },
   name: 'FooterBar' 

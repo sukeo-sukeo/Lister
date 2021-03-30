@@ -3,18 +3,18 @@
     <header-bar/>
     <div class="main-content">
       <component :is="currentView"></component>
+      <!-- <video-container @video="video" /> -->
     </div>
-    <create-btn
-    @mainContentChange="mainContentChange"
+    <footer-bar
+    @changeToListContainer="changeToListContainer(icon)"
     />
-    <footer-bar/>
   </div>
 </template>
 
 <script>
 import HeaderBar from './components/HeaderBar.vue'
 import FooterBar from './components/FooterBar.vue'
-import CreateBtn from './components/CreateBtn.vue'
+// import CreateBtn from './components/CreateBtn.vue'
 import VideoContainer from './components/VideoContainer.vue'
 import ListContainer from './components/ListContainer.vue'
 
@@ -24,19 +24,26 @@ export default {
   components: {
     HeaderBar,
     FooterBar,
-    CreateBtn,
+    // CreateBtn,
     VideoContainer,
-    ListContainer
+    ListContainer,
   },
   data: () => {
     return {
-      currentView: 'VideoContainer'
+      currentView: 'VideoContainer',
+      URL: '',
+      video: ''
     }
   },
   methods: {
-    mainContentChange() {
+    changeToListContainer(icon) {
+      console.log(icon);
       this.currentView = 'ListContainer'
     }
+  },
+  created() {
+    this.URL = location.href
+    console.log(this.URL);
   }
 }
 </script>

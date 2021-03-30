@@ -3,7 +3,7 @@
   <div class="btn-wrapper">
     <button 
      class="create-btn"
-     @click="$emit('mainContentChange')"
+     @click="$emit('capture')"
     >{{btnName}}</button>
   </div>
 </div>
