@@ -1,19 +1,17 @@
 <template>
 <div>
-  <play-btn @loadAndPlay="loadAndPlay"/>
-  <stop-btn @stop="stop" />
   <video ref="myVideo" width="335" height="480" autoplay playsinline></video>
   <create-btn @capture="capture"/>
 </div>
 </template>
 
 <script>
-import PlayBtn from './components_parts/PlayBtn.vue';
-import StopBtn from './components_parts/StopBtn.vue';
+// import PlayBtn from './components_parts/PlayBtn.vue';
+// import StopBtn from './components_parts/StopBtn.vue';
 import CreateBtn from './components_parts/CreateBtn.vue';
 
 export default {
-  components: { PlayBtn, StopBtn, CreateBtn },
+  components: { CreateBtn },
   name: 'VideoContainer',
   data: () => {
     return {
@@ -37,8 +35,6 @@ export default {
         audio: false,
       })
       video.srcObject = this.stream
-      // console.log(video);
-      // this.$emit(video)
     },
     stop() {
       const video = this.$refs.myVideo

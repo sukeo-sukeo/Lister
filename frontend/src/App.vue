@@ -2,11 +2,10 @@
   <div>
     <header-bar/>
     <div class="main-content">
-      <component :is="currentView"></component>
-      <!-- <video-container @video="video" /> -->
+      <component ref="videoContainer" :is="currentView"></component>
     </div>
     <footer-bar
-    @changeToListContainer="changeToListContainer(icon)"
+    @changeMainContent="changeMainContent"
     />
   </div>
 </template>
@@ -14,7 +13,6 @@
 <script>
 import HeaderBar from './components/HeaderBar.vue'
 import FooterBar from './components/FooterBar.vue'
-// import CreateBtn from './components/CreateBtn.vue'
 import VideoContainer from './components/VideoContainer.vue'
 import ListContainer from './components/ListContainer.vue'
 
@@ -36,9 +34,22 @@ export default {
     }
   },
   methods: {
-    changeToListContainer(icon) {
-      console.log(icon);
-      this.currentView = 'ListContainer'
+    changeMainContent(iconName) {
+      switch (iconName) {
+        case 'camera':
+          this.currentView = 'VideoContainer'
+          break;
+        case 'list':
+          this.$refs.videoContainer.stop()
+          this.currentView = 'ListContainer'
+          break; 
+        case 'delete':
+          console.log('deleteします！');
+          break; 
+        case 'chart':
+          console.log('chart機能乞うご期待！');
+          break; 
+      }
     }
   },
   created() {

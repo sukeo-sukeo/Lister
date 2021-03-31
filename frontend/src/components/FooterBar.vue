@@ -1,6 +1,6 @@
 <template>
 <div class="footer">
-  <footer-menu/>
+  <footer-menu @menu-icon-click="$listeners['changeMainContent']"/>
 </div>
 </template>
 

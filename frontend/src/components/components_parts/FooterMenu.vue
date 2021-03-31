@@ -4,8 +4,9 @@
 
     <div
      class="menu-icon"
-     @click="$emit('changeToListContainer(icon.name)')"
-     v-for="icon in menuIcons" :key="icon.name">
+     v-for="icon in menuIcons" :key="icon.name"
+     @click="$emit('menu-icon-click', icon.name)"
+     >
 
       <label class="labels" :for="icon.name">{{icon.name}}</label>
       <span :id="icon.name" class="iconify" data-inline="false" :data-icon="icon.icon"></span>
