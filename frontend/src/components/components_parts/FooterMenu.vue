@@ -5,7 +5,7 @@
     <div
      class="menu-icon"
      v-for="icon in menuIcons" :key="icon.name"
-     @click="$emit('menu-icon-click', icon.name)"
+     @click="$emit('menu-icon-click-parts', icon.name)"
      >
 
       <label class="labels" :for="icon.name">{{icon.name}}</label>

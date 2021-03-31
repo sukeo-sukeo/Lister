@@ -6,8 +6,6 @@
 </template>
 
 <script>
-// import PlayBtn from './components_parts/PlayBtn.vue';
-// import StopBtn from './components_parts/StopBtn.vue';
 import CreateBtn from './components_parts/CreateBtn.vue';
 
 export default {
@@ -60,14 +58,13 @@ export default {
         body: imgData
       }
     
-      // const URL = location.href
-      const URL = `http://localhost:3000/`
-      console.log(data.body);
-      console.log(URL + 'posts');
-      // fetch(URL + "posts", data)
-      //   .then(res => res.text())
-      //   // .then(data => creatCheckList(data))
-      //   .then(data => console.log(data))
+      // const URL = 'http://localhost:5000/lister-424b3/us-central1/app/'
+      const URL = 'https://lister-424b3.web.app/'
+      console.log(URL);
+      // const URL = `http://localhost:3000/`
+      fetch(URL + "posts", data)
+        .then(res => res.text())
+        .then(data => this.$emit('fetch-result-data', data))
     }
   },
   mounted() {

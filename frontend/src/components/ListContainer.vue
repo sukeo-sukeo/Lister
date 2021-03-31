@@ -12,25 +12,33 @@
 <script>
 export default {
   name: 'ListContainer',
+  props: {
+    todoText: String
+  },
   data: () => {
     return {
-      todos: [
-        {id: 1, item: 'テスト1', isDone: false},
-        {id: 2, item: 'テスト2', isDone: false},
-        {id: 3, item: 'テスト3', isDone: false},
-        {id: 4, item: 'テスト4', isDone: false},
-        ],
+      todos: [],
     }
   },
   methods: {
-    checkedCheck(event) {
-      console.log(event.target.tagName);
-      
-      // this.isChecked.forEach(check => {
-      //   if (check === tageValue) {
-
-      //   }
-      // })
+    createList() {
+      const textArray = this.todoText.split('\n')
+      console.log(textArray);
+      textArray.forEach((text, i) => {
+        const todoObj = {}
+        todoObj.id = i
+        todoObj.item = text
+        todoObj.isDone = false
+        this.todos.push(todoObj)
+      })
+    }
+  },
+  mounted() {
+    console.log(this.todoText);
+    if (this.todoText) {
+      this.createList()
+    } else {
+      return
     }
   }
 }

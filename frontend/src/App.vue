@@ -2,10 +2,14 @@
   <div>
     <header-bar/>
     <div class="main-content">
-      <component ref="videoContainer" :is="currentView"></component>
+      <component 
+      ref="useChildMethods"  
+      @fetch-result-data="textToData"
+      :todoText="todoText"
+      :is="currentView"></component>
     </div>
     <footer-bar
-    @changeMainContent="changeMainContent"
+    @menu-icon-click="changeMainContent"
     />
   </div>
 </template>
@@ -28,9 +32,10 @@ export default {
   },
   data: () => {
     return {
-      currentView: 'VideoContainer',
       URL: '',
-      video: ''
+      video: '',
+      todoText: '',
+      currentView: 'VideoContainer',
     }
   },
   methods: {
@@ -40,7 +45,7 @@ export default {
           this.currentView = 'VideoContainer'
           break;
         case 'list':
-          this.$refs.videoContainer.stop()
+          this.$refs.useChildMethods.stop()
           this.currentView = 'ListContainer'
           break; 
         case 'delete':
@@ -50,6 +55,11 @@ export default {
           console.log('chart機能乞うご期待！');
           break; 
       }
+    },
+    textToData(data) {
+      this.todoText = data
+      this.$refs.useChildMethods.stop()
+      this.currentView = 'ListContainer'
     }
   },
   created() {
