@@ -59,7 +59,7 @@ export default {
       }
     
       // const URL = 'http://localhost:5000/lister-424b3/us-central1/app/'
-      const URL = 'https://lister-424b3.web.app/'
+      const URL = 'https://lister-424b3.firebaseapp.com/'
       console.log(URL);
       // const URL = `http://localhost:3000/`
       fetch(URL + "posts", data)
