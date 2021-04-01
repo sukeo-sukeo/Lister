@@ -16,6 +16,9 @@ export default {
     return {
       btnName: 'create Liste'
     }
+  },
+  methods: {
+    
   }
 }
 </script>

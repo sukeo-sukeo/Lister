@@ -1,6 +1,7 @@
 <template>
 <div>
-  <video ref="myVideo" width="335" height="480" autoplay playsinline></video>
+  <video ref="myVideo" width="335" height="400" autoplay playsinline></video>
+  <canvas ref="canvas" width="335" height="400"></canvas>
   <create-btn @capture="capture"/>
 </div>
 </template>
@@ -43,8 +44,11 @@ export default {
       video.srcObject = null;
     },
     async capture() {
+      this.resetStore()
+  
       const video = this.$refs.myVideo
-      const canvas = document.createElement('canvas')
+      // const canvas = document.createElement('canvas')
+      const canvas = this.$refs.canvas
       const context = canvas.getContext("2d");
 
       context.drawImage(video, 0, 0, video.width, video.height);
@@ -57,14 +61,26 @@ export default {
         method: "POST",
         body: imgData
       }
+
+      let URL;
+      console.log(location.hostname);
+      if (location.hostname === 'localhost') {
+        URL = `http://localhost:5000/lister-424b3/us-central1/app/`;
+      } else {
+        URL = location.href;
+      }
     
       // const URL = 'http://localhost:5000/lister-424b3/us-central1/app/'
-      const URL = 'https://lister-424b3.firebaseapp.com/'
-      console.log(URL);
+      // const URL = 'https://lister-424b3.firebaseapp.com/'
       // const URL = `http://localhost:3000/`
+      console.log(URL);
+
       fetch(URL + "posts", data)
         .then(res => res.text())
         .then(data => this.$emit('fetch-result-data', data))
+    },
+    resetStore() {
+      localStorage.removeItem('Lister')
     }
   },
   mounted() {
@@ -81,6 +97,13 @@ export default {
 video {
   background: black;
   margin: 0 20px;
+}
+
+canvas {
+  position: absolute;
+  margin: 0 20px;
+  left: 0;
+  z-index: -1;
 }
 </style>
 

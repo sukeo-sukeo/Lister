@@ -1,16 +1,20 @@
 <template>
   <div>
+
     <header-bar/>
+
     <div class="main-content">
       <component 
-      ref="useChildMethods"  
+      ref="useVideoContainerMethods"  
       @fetch-result-data="textToData"
       :todoText="todoText"
       :is="currentView"></component>
     </div>
+    
     <footer-bar
     @menu-icon-click="changeMainContent"
     />
+
   </div>
 </template>
 
@@ -45,11 +49,12 @@ export default {
           this.currentView = 'VideoContainer'
           break;
         case 'list':
-          this.$refs.useChildMethods.stop()
+          this.$refs.useVideoContainerMethods.stop()
           this.currentView = 'ListContainer'
           break; 
         case 'delete':
-          console.log('deleteします！');
+          this.$refs.useVideoContainerMethods.resetStore()
+          console.log('delete');
           break; 
         case 'chart':
           console.log('chart機能乞うご期待！');
@@ -58,18 +63,23 @@ export default {
     },
     textToData(data) {
       this.todoText = data
-      this.$refs.useChildMethods.stop()
+      this.$refs.useVideoContainerMethods.stop()
       this.currentView = 'ListContainer'
     }
   },
   created() {
     this.URL = location.href
     console.log(this.URL);
+  },
+  mounted() {
+    
   }
 }
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Rhodium+Libre&display=swap');
-
+.main-content {
+  margin-top: 20px;
+}
 </style>
