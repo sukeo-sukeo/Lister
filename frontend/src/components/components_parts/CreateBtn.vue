@@ -1,12 +1,12 @@
 <template>
-<div>
+<!-- <div> -->
   <div class="btn-wrapper">
     <button 
      class="create-btn"
      @click="$emit('capture')"
     >{{btnName}}</button>
   </div>
-</div>
+<!-- </div> -->
 </template>
 
 <script>
@@ -26,7 +26,7 @@ export default {
 <style scoped>
 .btn-wrapper {
   text-align: center;
-  margin-top: 8px;
+  align-self: center;
 }
 
 .create-btn {
@@ -37,7 +37,7 @@ export default {
   font-family: Rhodium Libre;
   font-style: normal;
   font-weight: normal;
-  font-size: 30px;
+  font-size: 1.8rem;
   line-height: 51px;
   text-align: center;
 }

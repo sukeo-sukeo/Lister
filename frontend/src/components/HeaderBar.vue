@@ -2,18 +2,20 @@
 <div class="header">
   <div class="header-inner">
     <title-logo :title=title />
-    <menu-icon/>
+    <plus-list-btn
+     @plus-icon-click-parts="$listeners['plus-icon-click']"
+    />
   </div>
 </div>
 </template>
 
 <script>
-import MenuIcon from './components_parts/MenuIcon.vue'
+import PlusListBtn from './components_parts/PlusListBtn.vue'
 import TitleLogo from './components_parts/TitleLogo.vue'
 
 export default {
   name: 'HeaderBar',
-  components: { TitleLogo, MenuIcon },
+  components: { TitleLogo, PlusListBtn },
   data: () => {
     return {
       title: 'Lister'

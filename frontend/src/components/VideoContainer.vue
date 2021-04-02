@@ -1,19 +1,31 @@
 <template>
 <div>
-  <video ref="myVideo" width="335" height="400" autoplay playsinline></video>
-  <canvas ref="canvas" width="335" height="400"></canvas>
-  <create-btn @capture="capture"/>
+  <div class="video-outer">
+    <video ref="myVideo" width="335" :height="videoHeight" autoplay playsinline>
+    </video>
+    <canvas ref="canvas" width="335" :height="videoHeight"></canvas>
+    <loader-circle v-show="loading"/>
+  </div>
+  <div class="btn-outer" :style="{height: createBtnHeight + 'px' }">
+    <create-btn @capture="capture"/>
+  </div>
 </div>
 </template>
 
 <script>
 import CreateBtn from './components_parts/CreateBtn.vue';
+import LoaderCircle from './components_parts/LoaderCircle.vue';
 
 export default {
-  components: { CreateBtn },
+  components: { CreateBtn, LoaderCircle },
   name: 'VideoContainer',
+  props: {
+    videoHeight: String,
+    createBtnHeight: String
+  },
   data: () => {
     return {
+      loading: false,
       stream: '',
     }
   },
@@ -34,6 +46,7 @@ export default {
         audio: false,
       })
       video.srcObject = this.stream
+      this.$emit('stream', this.stream.active)
     },
     stop() {
       const video = this.$refs.myVideo
@@ -44,8 +57,9 @@ export default {
       video.srcObject = null;
     },
     async capture() {
-      this.resetStore()
-  
+      // this.stop()
+      localStorage.removeItem('Lister')
+      
       const video = this.$refs.myVideo
       // const canvas = document.createElement('canvas')
       const canvas = this.$refs.canvas
@@ -75,12 +89,13 @@ export default {
       // const URL = `http://localhost:3000/`
       console.log(URL);
 
+      // this.loading = true
+
       fetch(URL + "posts", data)
         .then(res => res.text())
         .then(data => this.$emit('fetch-result-data', data))
-    },
-    resetStore() {
-      localStorage.removeItem('Lister')
+      
+      // this.loading = false
     }
   },
   mounted() {
@@ -105,5 +120,11 @@ canvas {
   left: 0;
   z-index: -1;
 }
+
+.btn-outer {
+  display: flex;
+  justify-content: center;
+}
+
 </style>
 

@@ -36,7 +36,7 @@ export default {
            icon: 'ic:baseline-delete'
           },
           {
-           name: 'chart',
+           name: 'stock',
            icon: 'ic:baseline-insert-chart'
           },
         ]

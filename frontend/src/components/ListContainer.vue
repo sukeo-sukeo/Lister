@@ -9,18 +9,26 @@
       </span>
     </li>
   </ul>
+  <div class="under-menu-outer">
+    <remove-list-btn
+    @remove-icon-click-parts="removeListLine"
+    />
+  </div>
 </div>
 </template>
 
 <script>
+import RemoveListBtn from './components_parts/removeListBtn.vue'
 export default {
   name: 'ListContainer',
+  components: {RemoveListBtn},
   props: {
     todoText: String,
   },
   data: () => {
     return {
       todos: [],
+      limitLine: 100
     }
   },
   methods: {
@@ -58,12 +66,44 @@ export default {
       } else {
         return
       }
+    },
+    addListLine() {
+      if (this.todos.length === this.limitLine) {
+        return
+      }
+
+      let lastTodoID;
+      if (this.todos.length === 0) {
+        lastTodoID = 0
+      } else {
+        lastTodoID = this.todos[this.todos.length-1].id
+      }
+
+      const todoObj = {}
+      todoObj.id = lastTodoID + 1 
+      todoObj.item = ''
+      todoObj.isDone = false
+
+      this.todos.push(todoObj)
+    
+    },
+    removeListLine() {
+      if (this.todos.length === 0) {
+        return
+      }
+      this.todos.pop()
+    },
+    resetStore() {
+      if (this.todos.length === 0) {
+        return
+      }
+      localStorage.removeItem('Lister')
+      this.todos.splice(0, this.todos.length)
     }
   },
   watch: {
     todos: {
       handler() {
-        console.log('someObj changed')
         localStorage.setItem('Lister', JSON.stringify(this.todos))
       },
       deep: true
@@ -85,6 +125,7 @@ export default {
 
 <style scoped>
 ul {
+  overflow: scroll;
   font-size: 24px;
   list-style: none;
   padding: 0;
@@ -101,5 +142,10 @@ ul {
 .iconify {
   margin-left: 5px;
   opacity: .3;
+}
+
+.under-menu-outer {
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
