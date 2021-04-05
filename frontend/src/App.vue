@@ -9,7 +9,6 @@
       <video-container
        v-if="currentView.video"
        ref="useVideoContainerMethods"
-       @stream="streamCheck"
        @fetch-result-data="textToData"
        :videoHeight="videoHeight"
        :createBtnHeight="createBtnHeight"
@@ -17,19 +16,16 @@
       <list-container
        v-if="currentView.list"
        ref="useListContainerMethods"
+       @save-return-list="updateLoadContainer"
+       :listContainerHeight="listContainerHeight"
        :todoText="todoText"
       />
-      <stock-container
-       v-if="currentView.stock"
+      <load-container
+       v-if="currentView.load"
+       @db-listdata-click="fetchOneListData"
+       :listsData="listsData"
+       :listContainerHeight="listContainerHeight"
       />
-    
-      <!-- <component 
-      ref="useVideoContainerMethods"  
-      @fetch-result-data="textToData"
-      :todoText="todoText"
-      :videoHeight="videoHeight"
-      :createBtnHeight="createBtnHeight"
-      :is="currentView"></component> -->
     </div>
     
     <footer-bar
@@ -44,7 +40,7 @@ import HeaderBar from './components/HeaderBar.vue'
 import FooterBar from './components/FooterBar.vue'
 import VideoContainer from './components/VideoContainer.vue'
 import ListContainer from './components/ListContainer.vue'
-import StockContainer from './components/StockContainer.vue'
+import LoadContainer from './components/LoadContainer'
 
 
 export default {
@@ -55,33 +51,28 @@ export default {
     // CreateBtn,
     VideoContainer,
     ListContainer,
-    StockContainer,
+    LoadContainer,
   },
   data: () => {
     return {
       videoHeight: '',
       createBtnHeight: '',
-      videoActive: Boolean,
+      listContainerHeight: '',
       URL: '',
       video: '',
       todoText: '',
-      // currentView: 'VideoContainer',
+      listsData: [],
       currentView: {
         video: true,
         list: false,
-        stock: false,
+        load: false,
       },
     }
   },
   methods: {
     changeMainContent(iconName) {
-      if (iconName !== 'camera') {
-        if (this.videoActive) {
-          this.$refs.useVideoContainerMethods.stop()
-          this.videoActive = false
-        }
-      } else {
-        this.videoActive = true
+      if (iconName !== 'camera' && this.currentView.video) {
+        this.$refs.useVideoContainerMethods.stop()
       }
       switch (iconName) {
         case 'camera':
@@ -98,16 +89,16 @@ export default {
             this.toListView()
           }
           break; 
-        case 'delete':
+        case 'save':
           if (this.currentView.list) {
-             this.$refs.useListContainerMethods.resetStore()
+            this.$refs.useListContainerMethods.saveListToDB()
           }
           break; 
-        case 'stock':
-          if (this.currentView.stock) {
+        case 'load':
+          if (this.currentView.load) {
             return
           } else {
-            this.toStockView()
+            this.toloadView()
           }
           break; 
       }
@@ -115,17 +106,17 @@ export default {
     toVideoView() {
       this.currentView.video = true
       this.currentView.list = false
-      this.currentView.stock = false
+      this.currentView.load = false
     },
     toListView() {
       this.currentView.video = false
       this.currentView.list = true
-      this.currentView.stock = false
+      this.currentView.load = false
     },
-    toStockView() {
+    toloadView() {
       this.currentView.video = false
       this.currentView.list = false
-      this.currentView.stock = true
+      this.currentView.load = true
     },
     addListLine() {
       if (this.currentView.list) {
@@ -137,14 +128,34 @@ export default {
       this.$refs.useVideoContainerMethods.stop()
       this.toListView()
     },
-    streamCheck(active) {
-      console.log(active);
-      this.videoActive = active
+    updateLoadContainer(data) {
+      // this.toListView()
+      this.listsData = data
+    },
+    fetchOneListData(dataKey) {
+      console.log(dataKey);
+      fetch(this.URL + `load/list?id=${dataKey}`)
+      .then(res => res.text())
+      .then(data => {
+        console.log(data);
+        localStorage.setItem('Lister', data)
+        this.toListView()
+      })
     }
   },
   created() {
-    this.URL = location.href
+    if (location.hostname === 'localhost') {
+      this.URL = `http://localhost:5000/lister-424b3/us-central1/app/`;
+    } else {
+      this.URL = location.href;
+    }
     console.log(this.URL);
+    fetch(this.URL + `load/lists`)
+    .then(res => res.json())
+    .then(data => {
+      console.log(data);
+      this.updateLoadContainer(data)
+    })
   },
   mounted() {
     const h_f_px = 112 //52px + 60px
@@ -159,6 +170,7 @@ export default {
     console.log('c_btn', c_btnH);
     this.videoHeight = String(videoH)
     this.createBtnHeight = String(c_btnH)
+    this.listContainerHeight = String(main_H - 44)
   }
 }
 </script>

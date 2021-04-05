@@ -32,11 +32,11 @@ export default {
            icon: 'ic:baseline-list-alt'
           },
           {
-           name: 'delete',
-           icon: 'ic:baseline-delete'
+           name: 'save',
+           icon: 'ic:baseline-save'
           },
           {
-           name: 'stock',
+           name: 'load',
            icon: 'ic:baseline-insert-chart'
           },
         ]

@@ -14,7 +14,7 @@ export default {
   name: 'CreateBtn',
   data: () => {
     return {
-      btnName: 'create Liste'
+      btnName: 'createList'
     }
   },
   methods: {

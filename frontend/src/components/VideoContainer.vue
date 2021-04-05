@@ -46,7 +46,6 @@ export default {
         audio: false,
       })
       video.srcObject = this.stream
-      this.$emit('stream', this.stream.active)
     },
     stop() {
       const video = this.$refs.myVideo
