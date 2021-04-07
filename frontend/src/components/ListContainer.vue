@@ -1,6 +1,8 @@
 <template>
 <div>
-  <title-input-box/>
+  <div class="input-outer">
+    <input class="input-title" type="text" placeholder="" v-model="listTitle">
+  </div>
   <ul :style="{height: listContainerHeight + 'px' }">
     <li v-for="todo in todos" :key="todo.id">
       <input type="checkbox" :id="todo.id" :value="todo.item" v-model="todo.isDone">
@@ -11,6 +13,7 @@
     </li>
   </ul>
   <div class="under-menu-outer">
+    <under-submenu/>
     <remove-list-btn
     @remove-icon-click-parts="removeListLine"
     />
@@ -20,18 +23,20 @@
 
 <script>
 import RemoveListBtn from './components_parts/removeListBtn.vue'
-import TitleInputBox from './components_parts/TitleInputBox.vue'
+import UnderSubmenu from './UnderSubmenu.vue'
 
 export default {
   name: 'ListContainer',
-  components: {RemoveListBtn, TitleInputBox},
+  components: {RemoveListBtn, UnderSubmenu},
   props: {
     todoText: String,
     listContainerHeight: String,
+    baseURL: String
   },
   data: () => {
     return {
       todos: [],
+      listTitle: 'new List',
       limitLine: 100
     }
   },
@@ -44,7 +49,7 @@ export default {
 
       if (dataPlace === 'new') {
         const textArray = list.split('\n')
-        console.log(textArray);
+        // console.log(textArray);
         // 最後の空行を除去する処理
         const lastElm = textArray[textArray.length-1]
         if (lastElm === '') {
@@ -103,43 +108,36 @@ export default {
         return
       }
       localStorage.removeItem('Lister')
+      localStorage.removeItem('ListTitle')
+      this.listTitle = 'new List'
       this.todos.splice(0, this.todos.length)
     },
     async saveListToDB() {
       if (this.todos.length === 0) {
         return
       }
-      console.log('saveing');
+      // console.log('saveing');
 
       const listData = localStorage.getItem('Lister')
+      const listTitle = localStorage.getItem('ListTitle')
       const uuid = await this.getUniqueStr()
       const time = await this.getTimeStr()
-      const json = JSON.stringify({uuid, time, listData})
+      const json = JSON.stringify({uuid, time, listData, listTitle})
       
       const data = {
         method: "POST",
         body: json
       }
 
-      let URL;
-      if (location.hostname === 'localhost') {
-        URL = `http://localhost:5000/lister-424b3/us-central1/app/`;
-      } else {
-        URL = location.href;
-      }
 
-      console.log(URL);
-      console.log(data);
-
-      fetch(URL + "/save/list", data)
+      fetch(this.baseURL + "save/list", data)
         .then(res => res.json())
         .then(data => {
           console.log(data);
-          this.$emit('save-return-list', data.lists)
+          this.$emit('save-return-list')
+          this.resetList()
         })
 
-      this.resetList()
-      this.todos.splice(0, this.todos.length)
 
     },
     getTimeStr() {
@@ -148,7 +146,7 @@ export default {
       const day = date.getDate()
       const h = date.getHours()
       const m = date.getMinutes()
-      console.log(month, day, h, m);
+      // console.log(month, day, h, m);
       return `${month}/${day} ${h}時${m}分`
     },
     getUniqueStr(myStrong) {
@@ -163,6 +161,9 @@ export default {
         localStorage.setItem('Lister', JSON.stringify(this.todos))
       },
       deep: true
+    },
+    listTitle() {
+      localStorage.setItem('ListTitle', this.listTitle)
     }
   },
   created() {
@@ -175,6 +176,13 @@ export default {
     } else {
       // 新たにリストをつくった場合はpropsからリスト作成
       this.createList('new', this.todoText)
+    }
+
+    const hasTitle = localStorage.getItem('ListTitle')
+    if (hasTitle) {
+      this.listTitle = hasTitle
+    } else {
+      localStorage.setItem('ListTitle', 'new List')
     }
 
   }
@@ -204,7 +212,25 @@ ul {
 
 .under-menu-outer {
   display: flex;
+  flex-grow: 2;
   justify-content: flex-end;
+  align-items: center;
+}
+
+.input-outer {
+  display: flex;
+  justify-content: center;
+}
+.input-title {
+  color: gray;
+  border: none;
+  height: 32px;
+  font-size: 28px;
+  width: 80%;
+  border-bottom: solid 2px lightgray;
+  /* font-family: 'Rhodium Libre', serif; */
+  font-style: normal;
+  font-weight: normal;
 }
 
 </style>

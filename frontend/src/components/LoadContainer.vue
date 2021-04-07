@@ -1,14 +1,16 @@
 <template>
 <div>
-  <ul :style="{height: listContainerHeight + 'px' }">
+  <ul :style="{height: Number(listContainerHeight) + Number(56) + 'px' }">
     <li class="list-name"
      v-for="(listData, key) in listsData" :key="key">
      <span
      @click="$emit('db-listdata-click', key)"
      >
-      {{key}}
+     {{ listData.title }}
+      <!-- {{Object.keys(listData)[0]}} -->
      </span>
-     <span class="edit">
+     <span class="edit"
+      @click="updateListTitle(key, listData.title)">
        <span class="iconify" data-inline="false" data-icon="ic:baseline-edit"></span>
      </span>
       <span class="delete"
@@ -18,33 +20,48 @@
       </span>
     </li>
   </ul>
+  <under-submenu/>
 </div>
 </template>
 
 <script>
+import UnderSubmenu from './UnderSubmenu.vue'
+
 export default {
   name: 'LoadContainer',
+  components: {UnderSubmenu},
   props: {
     listsData: [Array, Object],
     listContainerHeight: String,
+    baseURL: String
   },
   methods: {
-    deleteList(key) {
-      let URL;
-      if (location.hostname === 'localhost') {
-        URL = `http://localhost:5000/lister-424b3/us-central1/app/`;
+    updateListTitle(key, oldTitle) {
+      const newTitle = prompt(`タイトル「${oldTitle}」を編集`, oldTitle)
+      // console.log(newTitle);
+      if (!newTitle || newTitle === oldTitle) {
+        return
       } else {
-        URL = location.href;
+        fetch(this.baseURL + `update/list?key=${key}&newtitle=${newTitle}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          this.$emit('save-return-list')
+        })
       }
-      console.log(key);
-      console.log(URL);
-      // fetch(URL + `delete/list?key=${key}`)
-      //   .then(res => res.text())
-      //   .then(console.log)
+    },
+    deleteList(key) {
+      // console.log(key);
+      // console.log(this.baseURL);
+      fetch(this.baseURL + `delete/list?key=${key}`).then(res => res.json())
+        .then(data => {
+          console.log(data);
+          this.$emit('save-return-list')
+        })
     },
   },
   mounted() {
-    console.log(this.listsData);
+    // console.log(this.listsData);
   }
 }
 </script>
@@ -66,7 +83,10 @@ ul {
   opacity: .3;
 }
 
-
+.under-menu-outer {
+  height: 44px;
+  line-height: 44px;
+}
 
 .delete {
   float: right;

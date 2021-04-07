@@ -4,24 +4,30 @@
     <video ref="myVideo" width="335" :height="videoHeight" autoplay playsinline>
     </video>
     <canvas ref="canvas" width="335" :height="videoHeight"></canvas>
+    <api-counter :counter="apiCounter"/>
     <loader-circle v-show="loading"/>
   </div>
-  <div class="btn-outer" :style="{height: createBtnHeight + 'px' }">
+  <div class="btn-outer" :style="{height: Number(createBtnHeight) - Number(28) + 'px' }">
     <create-btn @capture="capture"/>
   </div>
+  <under-submenu/>
 </div>
 </template>
 
 <script>
+import ApiCounter from './components_parts/ApiCounter.vue';
 import CreateBtn from './components_parts/CreateBtn.vue';
 import LoaderCircle from './components_parts/LoaderCircle.vue';
+import UnderSubmenu from './UnderSubmenu.vue';
 
 export default {
-  components: { CreateBtn, LoaderCircle },
+  components: { CreateBtn, LoaderCircle, UnderSubmenu, ApiCounter },
   name: 'VideoContainer',
   props: {
+    apiCounter: Number,
     videoHeight: String,
-    createBtnHeight: String
+    createBtnHeight: String,
+    baseURL: String
   },
   data: () => {
     return {
@@ -58,6 +64,7 @@ export default {
     async capture() {
       // this.stop()
       localStorage.removeItem('Lister')
+      localStorage.removeItem('ListTitle')
       
       const video = this.$refs.myVideo
       // const canvas = document.createElement('canvas')
@@ -75,22 +82,10 @@ export default {
         body: imgData
       }
 
-      let URL;
-      console.log(location.hostname);
-      if (location.hostname === 'localhost') {
-        URL = `http://localhost:5000/lister-424b3/us-central1/app/`;
-      } else {
-        URL = location.href;
-      }
-    
-      // const URL = 'http://localhost:5000/lister-424b3/us-central1/app/'
-      // const URL = 'https://lister-424b3.firebaseapp.com/'
-      // const URL = `http://localhost:3000/`
-      console.log(URL);
-
+      // console.log(this.baseURL);
       // this.loading = true
 
-      fetch(URL + "posts", data)
+      fetch(this.baseURL + "posts", data)
         .then(res => res.text())
         .then(data => this.$emit('fetch-result-data', data))
       
@@ -125,5 +120,15 @@ canvas {
   justify-content: center;
 }
 
+.under-menu-outer {
+  height: 26px;
+  line-height: 44px;
+}
+
+.counter {
+  position: absolute;
+  margin-left: 20px;
+  left: 44%;
+}
 </style>
 

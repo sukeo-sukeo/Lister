@@ -10,19 +10,24 @@
        v-if="currentView.video"
        ref="useVideoContainerMethods"
        @fetch-result-data="textToData"
+       :baseURL="URL"
+       :apiCounter="apiCounter"
        :videoHeight="videoHeight"
        :createBtnHeight="createBtnHeight"
       />
       <list-container
        v-if="currentView.list"
        ref="useListContainerMethods"
-       @save-return-list="updateLoadContainer"
+       @save-return-list="fetchAllListData"
+       :baseURL="URL"
        :listContainerHeight="listContainerHeight"
        :todoText="todoText"
       />
       <load-container
        v-if="currentView.load"
        @db-listdata-click="fetchOneListData"
+       @save-return-list="fetchAllListData"
+       :baseURL="URL"
        :listsData="listsData"
        :listContainerHeight="listContainerHeight"
       />
@@ -62,6 +67,7 @@ export default {
       video: '',
       todoText: '',
       listsData: [],
+      apiCounter: 0,
       currentView: {
         video: true,
         list: false,
@@ -124,22 +130,37 @@ export default {
       }
     },
     textToData(data) {
+      this.apiCounter ++
       this.todoText = data
       this.$refs.useVideoContainerMethods.stop()
       this.toListView()
     },
     updateLoadContainer(data) {
       // this.toListView()
-      this.listsData = data
+      if (data) {
+        this.listsData = data
+      } else {
+        this.listsData = {}
+      }
     },
     fetchOneListData(dataKey) {
-      console.log(dataKey);
       fetch(this.URL + `load/list?id=${dataKey}`)
-      .then(res => res.text())
+      .then(res => res.json())
       .then(data => {
-        console.log(data);
-        localStorage.setItem('Lister', data)
+        // console.log(data.data);
+        const listTitle = data.data.title
+        const listData = data.data.lists
+        localStorage.setItem('Lister', listData)
+        localStorage.setItem('ListTitle', listTitle)
         this.toListView()
+      })
+    },
+    fetchAllListData() {
+      fetch(this.URL + `load/lists`)
+      .then(res => res.json())
+      .then(data => {
+        console.log(data.data);
+        this.updateLoadContainer(data.data)
       })
     }
   },
@@ -147,30 +168,20 @@ export default {
     if (location.hostname === 'localhost') {
       this.URL = `http://localhost:5000/lister-424b3/us-central1/app/`;
     } else {
-      this.URL = location.href;
+      this.URL = 'https://us-central1-lister-424b3.cloudfunctions.net/app/'
     }
     console.log(this.URL);
-    fetch(this.URL + `load/lists`)
-    .then(res => res.json())
-    .then(data => {
-      console.log(data);
-      this.updateLoadContainer(data)
-    })
+    this.fetchAllListData()
   },
   mounted() {
     const h_f_px = 112 //52px + 60px
     const mt_px = 20 //maincontent margintop 20px
-    const innerH = innerHeight
     const main_H = innerHeight - (h_f_px + mt_px)
     const videoH = innerHeight * 0.6
     const c_btnH = main_H - videoH
-    console.log('inner', innerH);
-    console.log('main_', main_H);
-    console.log('video', videoH);
-    console.log('c_btn', c_btnH);
     this.videoHeight = String(videoH)
     this.createBtnHeight = String(c_btnH)
-    this.listContainerHeight = String(main_H - 44)
+    this.listContainerHeight = String(main_H - 88)
   }
 }
 </script>

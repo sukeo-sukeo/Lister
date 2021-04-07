@@ -15,7 +15,7 @@ import TitleLogo from './components_parts/TitleLogo.vue'
 
 export default {
   name: 'HeaderBar',
-  components: { TitleLogo, PlusListBtn },
+  components: { TitleLogo, PlusListBtn},
   data: () => {
     return {
       title: 'Lister'
