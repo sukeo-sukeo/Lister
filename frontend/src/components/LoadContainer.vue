@@ -83,10 +83,10 @@ ul {
   opacity: .3;
 }
 
-.under-menu-outer {
+/* .under-menu-outer {
   height: 44px;
   line-height: 44px;
-}
+} */
 
 .delete {
   float: right;

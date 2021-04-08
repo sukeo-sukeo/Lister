@@ -120,15 +120,15 @@ canvas {
   justify-content: center;
 }
 
-.under-menu-outer {
+/* .under-menu-outer {
   height: 26px;
   line-height: 44px;
-}
+} */
 
 .counter {
   position: absolute;
   margin-left: 20px;
-  left: 44%;
+  left: 0%;
 }
 </style>
 

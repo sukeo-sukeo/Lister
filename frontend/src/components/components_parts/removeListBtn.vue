@@ -19,9 +19,9 @@ export default {
 
 <style scoped>
 .remove-list-icon {
-  height: 44px;
+  /* height: 44px; */
   font-size: 32px;
-  line-height: 52px;
+  /* line-height: 52px; */
   margin-right: 20px;
 }
 </style>

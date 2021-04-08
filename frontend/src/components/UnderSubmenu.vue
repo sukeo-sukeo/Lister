@@ -17,8 +17,13 @@ export default {
 
 <style scoped>
 .under-menu-outer {
+  width: 100%;
+  height: 24px;
   display: flex;
+  position: absolute;
+  bottom: 60px;
   /* justify-content: flex-end; */
   align-items: center;
 }
+
 </style>
