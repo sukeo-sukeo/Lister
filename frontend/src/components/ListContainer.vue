@@ -10,24 +10,29 @@
       <span @click="doEdit(todo.id, todo.item)">
         <span class="iconify" data-inline="false" data-icon="ic:baseline-edit"></span>
       </span>
+      <span class="delete"
+       @click="deleteList(todo.id)">
+        <span class="iconify"
+        data-inline="false" data-icon="ic:baseline-delete"></span>
+      </span>
     </li>
   </ul>
   <div class="under-menu-outer">
     <under-submenu/>
-    <remove-list-btn
+    <!-- <remove-list-btn
     @remove-icon-click-parts="removeListLine"
-    />
+    /> -->
   </div>
 </div>
 </template>
 
 <script>
-import RemoveListBtn from './components_parts/removeListBtn.vue'
+// import RemoveListBtn from './components_parts/removeListBtn.vue'
 import UnderSubmenu from './UnderSubmenu.vue'
 
 export default {
   name: 'ListContainer',
-  components: {RemoveListBtn, UnderSubmenu},
+  components: {UnderSubmenu},
   props: {
     todoText: String,
     listContainerHeight: String,
@@ -103,6 +108,10 @@ export default {
       }
       this.todos.pop()
     },
+    deleteList(todoid) {
+      const newTodos = this.todos.filter(todo => todo.id != todoid)
+      this.todos = newTodos
+    },
     resetList() {
       if (this.todos.length === 0) {
         return
@@ -122,7 +131,12 @@ export default {
       const listTitle = localStorage.getItem('ListTitle')
       const uuid = await this.getUniqueStr()
       const time = await this.getTimeStr()
-      const json = JSON.stringify({uuid, time, listData, listTitle})
+      const json = JSON.stringify({
+        uuid, 
+        time, 
+        listData, 
+        listTitle
+      })
       
       const data = {
         method: "POST",
@@ -147,7 +161,7 @@ export default {
       const h = date.getHours()
       const m = date.getMinutes()
       // console.log(month, day, h, m);
-      return `${month}/${day} ${h}時${m}分`
+      return `${month}/${day} ${h}:${m}`
     },
     getUniqueStr(myStrong) {
       let strong = 1000;
@@ -210,12 +224,16 @@ ul {
   opacity: .3;
 }
 
-.under-menu-outer {
+.delete {
+  float: right;
+}
+
+/* .under-menu-outer {
   display: flex;
   flex-grow: 2;
   justify-content: flex-end;
   align-items: center;
-}
+} */
 
 .input-outer {
   display: flex;

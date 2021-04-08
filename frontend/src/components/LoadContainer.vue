@@ -3,21 +3,24 @@
   <ul :style="{height: Number(listContainerHeight) + Number(56) + 'px' }">
     <li class="list-name"
      v-for="(listData, key) in listsData" :key="key">
-     <span
-     @click="$emit('db-listdata-click', key)"
-     >
-     {{ listData.title }}
+      <span
+       @click="$emit('db-listdata-click', key)"
+      >
+      {{ listData.title }}
       <!-- {{Object.keys(listData)[0]}} -->
-     </span>
-     <span class="edit"
-      @click="updateListTitle(key, listData.title)">
-       <span class="iconify" data-inline="false" data-icon="ic:baseline-edit"></span>
-     </span>
+      </span>
+      <span class="edit"
+       @click="updateListTitle(key, listData.title)">
+        <span class="iconify" data-inline="false" data-icon="ic:baseline-edit"></span>
+      </span>
       <span class="delete"
-       @click="deleteList(key)">
+        @click="deleteList(key)">
         <span class="iconify"
         data-inline="false" data-icon="ic:baseline-delete"></span>
       </span>
+      <small class="time">
+        {{listData.time}}
+      </small>
     </li>
   </ul>
   <under-submenu/>
@@ -87,6 +90,14 @@ ul {
   height: 44px;
   line-height: 44px;
 } */
+.time {
+  color: lightgray;
+  font-size: 12px;
+  /* display: inline-block; */
+  height: 24px;
+  line-height: 38px;
+  float: right;
+}
 
 .delete {
   float: right;
