@@ -6,13 +6,91 @@ const express = require("express");
 const app = express();
 const bodyParser = require('body-parser')
 const cors = require("cors");
-const port = 3000;
+// const port = 3000;
 const ocr = require('./ocr.js')
 
 app.use(cors());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+// firebase realtimeDB////////////////////////
+const admin = require("firebase-admin");
+// const serviceAccount = require("path/to/lister-424b3-firebase-adminsdk-xzq34-56154fb7bf.json");
+// const serviceAccount = require("/Users/yusuke/Documents/working/firebaseProject/checkmaker_app/functions/lister-424b3-firebase-adminsdk-xzq34-56154fb7bf.json");
+// const { ref } = require("firebase-functions/lib/providers/database");
+admin.initializeApp({
+  credential: admin.credential.applicationDefault(),
+  // credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://lister-424b3-default-rtdb.firebaseio.com",
+});
+const db = admin.database()
+// create is set
+// read is on
+// update is update
+// delete is remove
+
+// test
+app.get('/v1/test', (req, res) => {
+  console.log('console log test');
+  res.send('res send test')
+})
+
+// 初期読み出し
+// read
+app.get('/load/lists', async (req, res) => {
+  db.ref('lists/').once("value", snapshot => res.json({ data: snapshot.val() }))}
+  )
+
+// 指定の1件の読み出し
+// read
+app.get("/load/list", async (req, res) => db.ref('lists/' + req.query.id).once("value", snapshot => res.json({data: snapshot.val() })));
+
+// 指定の1件の削除
+// delete
+app.get("/delete/list", async (req, res) => {
+  db.ref("lists/" + req.query.key).remove();
+  res.json({msg: 'dbok'})
+  // db.ref('lists/').on("value", snapshot => res.json({ data: snapshot.val() }))
+});
+
+// タイトルの変更処理
+// 該当するキーのtitle:をnewTitleへ変更
+// update(listのタイトル)
+app.get("/update/list", async (req, res) => {
+  const key = req.query.key;
+  const newTitle = req.query.newtitle;
+  // dbをアップデート
+  db.ref("lists/").child(key).update({ title: newTitle });
+  // console.log(tmp);
+  res.json({ msg: "dbok" });
+  // アップデート後の呼び出し
+  // db.ref('lists/').on("value", snapshot => res.json({ data: snapshot.val() }))
+});
+
+// create
+app.post("/save/list", async (req, res) => {
+  const data = JSON.parse(req.body)
+  const uuid = data.uuid
+  const time = data.time
+  const listData = data.listData
+  const listTitle = data.listTitle
+  // console.log(listTitle);
+  // console.log(listData);
+  // console.log(uuid);
+  // console.log(time);
+  db.ref(`lists/${uuid}`).set({
+    title: listTitle,
+    lists: listData,
+    time: time
+  })
+  res.json({ msg: "dbok" });
+  // db.ref(`lists/`).on("value", snapshot => res.json({ data: snapshot.val() }))
+});
+
+////////////////////////////////////////////////////
+
+
+// ocr処理
 app.post("/posts", async (req, res) => {
   console.log('posts');
   const b64img = req.body.split(',')[1]
@@ -20,15 +98,15 @@ app.post("/posts", async (req, res) => {
   const img = base64.decode(b64img);
   
   let result = await ocr.detectText(img)
-//   let result = `ハロー ハロー
-// 河原木忠司口
-// DVD D`;
+
   if (!result) {
     result = 'テキストが認識できませんでした'
   }
 
+  // db.ref("users/").child(id).update({ apicount:  });
   res.status(200).send(result)
 
 });
+
 exports.app = functions.https.onRequest(app);
 // app.listen(port, () => console.log(`Example app listening on port ${port}!`));

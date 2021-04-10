@@ -10,6 +10,9 @@ firebase-debug.*.log*
 # key files
 silent-venture-308311-93e21d5c06a5.json
 vsion-7a080e6a71ff.json
+
+lister-424b3-firebase-adminsdk-xzq34-56154fb7bf.json
+
 # Firebase cache
 .firebase/
 

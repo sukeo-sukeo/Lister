@@ -1,14 +1,33 @@
 {
   "hosting": {
     "public": "./frontend/dist",
-    "rewrites": [{
-      "source": "**",
-      "function": "app"
-    }],
+    "rewrites": [
+      {
+        "source": "**",
+        "function": "app"
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ]
+  },
+  "functions": {
+    "runtime": "nodejs12"
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "database": {
+      "port": 9000
+    },
+    "hosting": {
+      "port": 5000
+    },
+    "ui": {
+      "enabled": true
+    }
   }
 }
