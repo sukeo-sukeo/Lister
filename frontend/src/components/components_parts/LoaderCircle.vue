@@ -25,8 +25,8 @@ export default {
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);
   transform: translateZ(0);
-  -webkit-animation: load6 1.7s infinite ease, round 1.7s infinite ease;
-  animation: load6 1.7s infinite ease, round 1.7s infinite ease;
+  -webkit-animation: load6 1.0s infinite ease, round 1.0s infinite ease;
+  animation: load6 1.0s infinite ease, round 1.0s infinite ease;
 }
 @-webkit-keyframes load6 {
   0% {

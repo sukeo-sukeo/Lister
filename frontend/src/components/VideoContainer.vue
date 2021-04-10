@@ -5,7 +5,7 @@
     </video>
     <canvas ref="canvas" width="335" :height="videoHeight"></canvas>
     <api-counter :counter="apiCounter"/>
-    <loader-circle v-show="loading"/>
+    <loader-circle v-if="loading"/>
   </div>
   <div class="btn-outer" :style="{height: Number(createBtnHeight) - Number(28) + 'px' }">
     <create-btn @capture="capture"/>
@@ -83,13 +83,14 @@ export default {
       }
 
       // console.log(this.baseURL);
-      // this.loading = true
+      this.loading = true
 
       fetch(this.baseURL + "posts", data)
         .then(res => res.text())
-        .then(data => this.$emit('fetch-result-data', data))
-      
-      // this.loading = false
+        .then(data => {
+          this.$emit('fetch-result-data', data)
+          this.loading = false
+        })
     }
   },
   mounted() {

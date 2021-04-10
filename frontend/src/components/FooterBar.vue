@@ -1,6 +1,8 @@
 <template>
 <div class="footer">
-  <footer-menu @menu-icon-click-parts="$listeners['menu-icon-click']"/>
+  <footer-menu
+  :currentView="currentView"
+  @menu-icon-click-parts="$listeners['menu-icon-click']"/>
 </div>
 </template>
 
@@ -8,6 +10,10 @@
 import FooterMenu from './components_parts/FooterMenu.vue'
 export default {
   components: { FooterMenu },
+  props: {
+    // clickInLoadList: Boolean,
+    currentView: Object
+  },
   name: 'FooterBar' 
 }
 </script>
@@ -19,5 +25,6 @@ export default {
   background: #C3E1FD;
   position: absolute;
   bottom: 0;
+  padding-bottom: 4px;
 }
 </style>

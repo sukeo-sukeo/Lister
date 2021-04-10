@@ -6,35 +6,42 @@
     />
 
     <div class="main-content">
-      <video-container
-       v-if="currentView.video"
-       ref="useVideoContainerMethods"
-       @fetch-result-data="textToData"
-       :baseURL="URL"
-       :apiCounter="apiCounter"
-       :videoHeight="videoHeight"
-       :createBtnHeight="createBtnHeight"
-      />
-      <list-container
-       v-if="currentView.list"
-       ref="useListContainerMethods"
-       @save-return-list="fetchAllListData"
-       :baseURL="URL"
-       :listContainerHeight="listContainerHeight"
-       :todoText="todoText"
-      />
-      <load-container
-       v-if="currentView.load"
-       @db-listdata-click="fetchOneListData"
-       @save-return-list="fetchAllListData"
-       :baseURL="URL"
-       :listsData="listsData"
-       :listContainerHeight="listContainerHeight"
-      />
+      <transition>
+        <video-container
+        v-if="currentView.video"
+        ref="useVideoContainerMethods"
+        @fetch-result-data="textToData"
+        :baseURL="URL"
+        :apiCounter="apiCounter"
+        :videoHeight="videoHeight"
+        :createBtnHeight="createBtnHeight"
+        v-touch:swipe.left="toListViewSwipe"
+        />
+        <list-container
+        v-if="currentView.list"
+        ref="useListContainerMethods"
+        @save-return-list="fetchAllListData"
+        :baseURL="URL"
+        :listContainerHeight="listContainerHeight"
+        :todoText="todoText"
+        v-touch:swipe.left="toloadView"
+        v-touch:swipe.right="toVideoView"
+        />
+        <load-container
+        v-if="currentView.load"
+        @db-listdata-click="fetchOneListData"
+        @save-return-list="fetchAllListData"
+        :baseURL="URL"
+        :listsData="listsData"
+        :listContainerHeight="listContainerHeight"
+        v-touch:swipe.right="toListView"
+        />
+      </transition>
     </div>
     
     <footer-bar
     @menu-icon-click="changeMainContent"
+    :currentView="currentView"
     />
 
   </div>
@@ -73,11 +80,12 @@ export default {
         list: false,
         load: false,
       },
+      // clickInLoadList: false
     }
   },
   methods: {
     changeMainContent(iconName) {
-      if (iconName !== 'camera' && this.currentView.video) {
+      if (iconName !== 'camera' && iconName !== 'save' && this.currentView.video) {
         this.$refs.useVideoContainerMethods.stop()
       }
       switch (iconName) {
@@ -124,6 +132,12 @@ export default {
       this.currentView.list = false
       this.currentView.load = true
     },
+    toListViewSwipe() {
+      this.currentView.video = false
+      this.currentView.list = true
+      this.currentView.load = false
+      this.$refs.useVideoContainerMethods.stop()
+    },
     addListLine() {
       if (this.currentView.list) {
         this.$refs.useListContainerMethods.addListLine()
@@ -136,7 +150,6 @@ export default {
       this.toListView()
     },
     updateLoadContainer(data) {
-      // this.toListView()
       if (data) {
         this.listsData = data
       } else {
@@ -144,6 +157,7 @@ export default {
       }
     },
     fetchOneListData(dataKey) {
+      this.clickInLoadList = false
       fetch(this.URL + `load/list?id=${dataKey}`)
       .then(res => res.json())
       .then(data => {
@@ -152,6 +166,7 @@ export default {
         const listData = data.data.lists
         localStorage.setItem('Lister', listData)
         localStorage.setItem('ListTitle', listTitle)
+        // this.clickInLoadList = true
         this.toListView()
       })
     },
@@ -182,13 +197,30 @@ export default {
     this.videoHeight = String(videoH)
     this.createBtnHeight = String(c_btnH)
     this.listContainerHeight = String(main_H - 88)
+
   }
 }
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Rhodium+Libre&display=swap');
+
+.v-enter,
+.v-leave-to {
+  opacity: 0;
+}
+
+.v-enter-active {
+  transition: .5s;
+}
+
+
 .main-content {
   margin-top: 20px;
+}
+
+.active {
+  color: red;
+  font-size: 24px;
 }
 </style>

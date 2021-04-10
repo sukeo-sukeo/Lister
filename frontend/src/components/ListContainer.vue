@@ -1,7 +1,7 @@
 <template>
 <div>
   <div class="input-outer">
-    <input class="input-title" type="text" placeholder="" v-model="listTitle">
+    <input class="input-title" type="text" placeholder="new List" v-model="listTitle">
   </div>
   <ul :style="{height: listContainerHeight + 'px' }">
     <li v-for="todo in todos" :key="todo.id">
@@ -41,7 +41,7 @@ export default {
   data: () => {
     return {
       todos: [],
-      listTitle: 'new List',
+      listTitle: '',
       limitLine: 100
     }
   },
@@ -118,7 +118,7 @@ export default {
       }
       localStorage.removeItem('Lister')
       localStorage.removeItem('ListTitle')
-      this.listTitle = 'new List'
+      this.listTitle = ''
       this.todos.splice(0, this.todos.length)
     },
     async saveListToDB() {
@@ -128,9 +128,13 @@ export default {
       // console.log('saveing');
 
       const listData = localStorage.getItem('Lister')
-      const listTitle = localStorage.getItem('ListTitle')
+      let listTitle = localStorage.getItem('ListTitle')
       const uuid = await this.getUniqueStr()
       const time = await this.getTimeStr()
+      if (!listTitle) {
+        listTitle = 'new List'
+      }
+
       const json = JSON.stringify({
         uuid, 
         time, 
@@ -159,8 +163,9 @@ export default {
       const month = date.getMonth() + 1
       const day = date.getDate()
       const h = date.getHours()
-      const m = date.getMinutes()
+      const m = ('0' + date.getMinutes()).slice(-2)
       // console.log(month, day, h, m);
+      
       return `${month}/${day} ${h}:${m}`
     },
     getUniqueStr(myStrong) {
@@ -196,7 +201,7 @@ export default {
     if (hasTitle) {
       this.listTitle = hasTitle
     } else {
-      localStorage.setItem('ListTitle', 'new List')
+      localStorage.setItem('ListTitle', '')
     }
 
   }
@@ -220,7 +225,7 @@ ul {
 }
 
 .iconify {
-  margin-left: 5px;
+  margin-left: 20px;
   opacity: .3;
 }
 

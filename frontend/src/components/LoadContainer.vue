@@ -38,6 +38,11 @@ export default {
     listContainerHeight: String,
     baseURL: String
   },
+  data: () => {
+    return {
+      // reversedListData: []
+    }
+  },
   methods: {
     updateListTitle(key, oldTitle) {
       const newTitle = prompt(`タイトル「${oldTitle}」を編集`, oldTitle)
@@ -62,9 +67,22 @@ export default {
           this.$emit('save-return-list')
         })
     },
+    // objRevers() {
+    //   console.log(this.listsData);
+    //   // console.log(Object.values(this.listsData));
+    //   const tmp = Object.values(this.listsData).sort(function(a, b) {
+    //     if (a.time > b.time) {
+    //         return -1;
+    //     } else {
+    //         return 1;
+    //     }
+    //   });
+    //   this.reversedListData = tmp
+    //   console.log(this.reversedListData);
+    // }
   },
   mounted() {
-    // console.log(this.listsData);
+    
   }
 }
 </script>
@@ -82,7 +100,7 @@ ul {
 }
 
 .iconify {
-  margin-left: 5px;
+  margin-left: 20px;
   opacity: .3;
 }
 
