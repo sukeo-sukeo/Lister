@@ -79,15 +79,15 @@ export default {
     currentView: {
       handler() {
         if (this.currentView.video) {
-          console.log('video');
+          // console.log('video');
           this.activeChange('camera')
         }
         if (this.currentView.list) {
-          console.log('list');
+          // console.log('list');
           this.activeChange('list')
         }
         if (this.currentView.load) {
-          console.log('load');
+          // console.log('load');
           this.activeChange('load')
         }
       },

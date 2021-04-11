@@ -8,7 +8,9 @@
     <loader-circle v-if="loading"/>
   </div>
   <div class="btn-outer" :style="{height: Number(createBtnHeight) - Number(28) + 'px' }">
-    <create-btn @capture="capture"/>
+    <create-btn 
+    :isLogin="isLogin"
+    @capture="capture"/>
   </div>
   <under-submenu/>
 </div>
@@ -24,6 +26,7 @@ export default {
   components: { CreateBtn, LoaderCircle, UnderSubmenu, ApiCounter },
   name: 'VideoContainer',
   props: {
+    isLogin: Boolean,
     apiCounter: Number,
     videoHeight: String,
     createBtnHeight: String,
@@ -62,6 +65,11 @@ export default {
       video.srcObject = null;
     },
     async capture() {
+      if (!this.isLogin) {
+        alert('こちらの機能は登録後使用できます')
+        this.$emit('notloggedin-createbtn-click')
+        return
+      }
       // this.stop()
       localStorage.removeItem('Lister')
       localStorage.removeItem('ListTitle')

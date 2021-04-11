@@ -2,16 +2,30 @@
   <div>
 
     <header-bar
+    :isLogin="isLogin"
+    :currentView="currentView"
+    @logout-btn-click="logout"
+    @title-logo-click="toVideoView"
     @plus-icon-click="addListLine"
     />
 
+    <transition>
+      <login-container
+      @signup-click="signup"
+      @login-click="login"
+      v-if="currentView.login"
+      />
+    </transition>
+    
     <div class="main-content">
       <transition>
         <video-container
         v-if="currentView.video"
         ref="useVideoContainerMethods"
+        @notloggedin-createbtn-click="loginAskAleart"
         @fetch-result-data="textToData"
-        :baseURL="URL"
+        :isLogin="isLogin"
+        :baseURL="baseURL"
         :apiCounter="apiCounter"
         :videoHeight="videoHeight"
         :createBtnHeight="createBtnHeight"
@@ -21,7 +35,7 @@
         v-if="currentView.list"
         ref="useListContainerMethods"
         @save-return-list="fetchAllListData"
-        :baseURL="URL"
+        :baseURL="baseURL"
         :listContainerHeight="listContainerHeight"
         :todoText="todoText"
         v-touch:swipe.left="toloadView"
@@ -31,7 +45,7 @@
         v-if="currentView.load"
         @db-listdata-click="fetchOneListData"
         @save-return-list="fetchAllListData"
-        :baseURL="URL"
+        :baseURL="baseURL"
         :listsData="listsData"
         :listContainerHeight="listContainerHeight"
         v-touch:swipe.right="toListView"
@@ -48,12 +62,19 @@
 </template>
 
 <script>
+import firebase from "firebase/app";
+import "firebase/auth";
+firebase.initializeApp({
+  apiKey: "AIzaSyCn0K_3qeXuXFVc-PMNrjeZoE80_PLHq-o",
+  // authDomain: "https://lister-424b3.firebaseapp.com/",
+});
+
 import HeaderBar from './components/HeaderBar.vue'
 import FooterBar from './components/FooterBar.vue'
 import VideoContainer from './components/VideoContainer.vue'
 import ListContainer from './components/ListContainer.vue'
 import LoadContainer from './components/LoadContainer'
-
+import LoginContainer from './components/LoginContainer'
 
 export default {
   name: 'App',
@@ -64,26 +85,125 @@ export default {
     VideoContainer,
     ListContainer,
     LoadContainer,
+    LoginContainer
   },
   data: () => {
     return {
       videoHeight: '',
       createBtnHeight: '',
       listContainerHeight: '',
-      URL: '',
+      baseURL: '',
       video: '',
       todoText: '',
       listsData: [],
-      apiCounter: 0,
+      isLogin: false,
       currentView: {
+        login: false,
         video: true,
         list: false,
         load: false,
       },
+      uid: '',
+      username: '',
+      apiCounter: 0,
       // clickInLoadList: false
     }
   },
   methods: {
+    signup(user) {
+      firebase.auth()
+      .createUserWithEmailAndPassword(user.email, user.password)
+      .then(registed => {
+        console.log(registed);
+        console.log(registed.user.uid, user.name);
+        this.registedUserToDB(registed.user.uid, user.name)
+        })
+        .catch(error => {
+          alert('登録できませんでした...')
+          console.log(error.message);
+        })
+    },
+    login(user) {
+      firebase.auth().signInWithEmailAndPassword(user.email, user.password).then(
+        registUser => {
+          this.getUserToDB(registUser.user.uid)
+        },
+        err => {
+          console.log(err.message);
+          alert('登録が見つかりませんでした...')
+        }
+      )
+    },
+    logout() {
+      if (this.isLogin) {
+         if (confirm('ログアウトしますか?')) {
+           firebase.auth().signOut().then(() => {
+             this.isLogin = false
+             this.uid = ''
+             this.username = ''
+             alert('ログアウトしました')
+           })
+         } else {
+           return
+         }
+      } else {
+        this.loginAskAleart()
+      }
+    },
+    loginAskAleart() {
+      this.$refs.useVideoContainerMethods.stop()
+      this.toLoginView()
+    },
+    registedUserToDB(uid, name) {
+      const json = JSON.stringify({
+        uid,
+        name
+      })
+
+      const data = {
+        method: "POST",
+        body: json
+      }
+
+      fetch(this.baseURL + "regist/user", data)
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          alert(`${data.username}様！
+          登録完了しました。ログインしてください。`)
+        })
+        .catch(err => {
+          console.log(err);
+          const user = firebase.auth().currentUser;
+          user.delete().then(() => {
+            console.log('deleted: 登録失敗', user);
+          }).catch((error) => {
+            console.log(error);
+            // An error happened.
+          });
+        })
+    },
+    getUserToDB(uid) {
+      const json = JSON.stringify({uid})
+      const data = {
+        method: "POST",
+        body: json
+      }
+      fetch(this.baseURL + "load/user", data)
+        .then(res => res.json())
+        .then(data => {
+          console.log(data.data);
+          this.isLogin = true
+          this.uid = uid
+          this.username = data.data.username
+          this.apiCounter = data.data.apicount
+          console.log(this.uid, this.username, this.apiCounter);
+          this.toVideoView()
+        })
+        .catch(() => {
+          console.log('データ取得に失敗しました');
+        })
+    },
     changeMainContent(iconName) {
       if (iconName !== 'camera' && iconName !== 'save' && this.currentView.video) {
         this.$refs.useVideoContainerMethods.stop()
@@ -104,8 +224,13 @@ export default {
           }
           break; 
         case 'save':
+          if (!this.isLogin) {
+            alert('saveを使うにはログインをしてください')
+            this.loginAskAleart()
+            return
+          }
           if (this.currentView.list) {
-            this.$refs.useListContainerMethods.saveListToDB()
+            this.$refs.useListContainerMethods.saveListToDB(this.uid)
           }
           break; 
         case 'load':
@@ -117,22 +242,32 @@ export default {
           break; 
       }
     },
+    toLoginView() {
+      this.currentView.login = true
+      this.currentView.video = false
+      this.currentView.list = false
+      this.currentView.load = false
+    },
     toVideoView() {
+      this.currentView.login = false
       this.currentView.video = true
       this.currentView.list = false
       this.currentView.load = false
     },
     toListView() {
+      this.currentView.login = false
       this.currentView.video = false
       this.currentView.list = true
       this.currentView.load = false
     },
     toloadView() {
+      this.currentView.login = false
       this.currentView.video = false
       this.currentView.list = false
       this.currentView.load = true
     },
     toListViewSwipe() {
+      this.currentView.login = false
       this.currentView.video = false
       this.currentView.list = true
       this.currentView.load = false
@@ -158,7 +293,7 @@ export default {
     },
     fetchOneListData(dataKey) {
       this.clickInLoadList = false
-      fetch(this.URL + `load/list?id=${dataKey}`)
+      fetch(this.baseURL + `load/list?id=${dataKey}`)
       .then(res => res.json())
       .then(data => {
         // console.log(data.data);
@@ -171,21 +306,53 @@ export default {
       })
     },
     fetchAllListData() {
-      fetch(this.URL + `load/lists`)
+      fetch(this.baseURL + `load/lists`)
       .then(res => res.json())
       .then(data => {
-        console.log(data.data);
+        // console.log(data.data);
         this.updateLoadContainer(data.data)
       })
-    }
+    },
   },
   created() {
-    if (location.hostname === 'localhost') {
-      this.URL = `http://localhost:5000/lister-424b3/us-central1/app/`;
+    const user = firebase.auth().currentUser;
+
+    if (user) {
+        console.log('ログイン中です', user);
+      this.isLogin = true
+      this.uid = user.uid
+      // User is signed in.
+      console.log('uid:', this.uid);
+      // User is signed in.
     } else {
-      this.URL = 'https://us-central1-lister-424b3.cloudfunctions.net/app/'
+        console.log('ログインしていません');
+      this.isLogin = false        
+      // No user is signed in.
+      console.log('uid:', this.uid);
+      // No user is signed in.
     }
-    console.log(this.URL);
+    // firebase.auth().onAuthStateChanged(user => {
+    //   if (user) {
+    //     console.log('ログイン中です', user);
+    //     this.isLogin = true
+    //     this.uid = user.uid
+    //     // User is signed in.
+    //     console.log('uid:', this.uid);
+    //   } else {
+    //     console.log('ログインしていません');
+    //     this.isLogin = false        
+    //     // No user is signed in.
+    //     console.log('uid:', this.uid);
+    //   }
+    // })
+
+    if (location.hostname === 'localhost') {
+      this.baseURL = `http://localhost:5000/lister-424b3/us-central1/app/`;
+    } else {
+      this.baseURL = 'https://us-central1-lister-424b3.cloudfunctions.net/app/'
+    }
+    console.log(this.baseURL);
+    console.log(this.isLogin);
     this.fetchAllListData()
   },
   mounted() {
@@ -197,7 +364,6 @@ export default {
     this.videoHeight = String(videoH)
     this.createBtnHeight = String(c_btnH)
     this.listContainerHeight = String(main_H - 88)
-
   }
 }
 </script>

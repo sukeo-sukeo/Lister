@@ -121,22 +121,25 @@ export default {
       this.listTitle = ''
       this.todos.splice(0, this.todos.length)
     },
-    async saveListToDB() {
+    async saveListToDB(uid) {
       if (this.todos.length === 0) {
         return
       }
       // console.log('saveing');
 
+      console.log(uid);
+
       const listData = localStorage.getItem('Lister')
       let listTitle = localStorage.getItem('ListTitle')
-      const uuid = await this.getUniqueStr()
+      const listId = await this.getUniqueStr()
       const time = await this.getTimeStr()
       if (!listTitle) {
         listTitle = 'new List'
       }
 
       const json = JSON.stringify({
-        uuid, 
+        uid,
+        listId, 
         time, 
         listData, 
         listTitle

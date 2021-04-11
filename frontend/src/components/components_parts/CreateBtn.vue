@@ -3,6 +3,7 @@
   <div class="btn-wrapper">
     <button 
      class="create-btn"
+     :style="isLogin? '' : 'opacity: .5;'"
      @click="$emit('capture')"
     >{{btnName}}</button>
   </div>
@@ -12,6 +13,9 @@
 <script>
 export default {
   name: 'CreateBtn',
+  props: {
+    isLogin: Boolean
+  },
   data: () => {
     return {
       btnName: 'createList'

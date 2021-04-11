@@ -1,6 +1,6 @@
 <template>
 <div>
-  <h1>
+  <h1 @click="$emit('title-logo-click')">
     {{ title }}
   </h1>
 </div>
