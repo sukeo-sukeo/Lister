@@ -67,18 +67,29 @@ app.get("/update/list", async (req, res) => {
   // db.ref('lists/').on("value", snapshot => res.json({ data: snapshot.val() }))
 });
 
-// create
+// userdataをとってくる
+app.post("/load/user", async (req, res) => {
+  const data = JSON.parse(req.body);
+  const uid = data.uid
+  db.ref("lists/" + uid).once("value", (snapshot) =>
+    res.json({ data: snapshot.val() })
+  );
+})
+
+// create listの保存
 app.post("/save/list", async (req, res) => {
   const data = JSON.parse(req.body)
-  const uuid = data.uuid
+  const uid = data.uid
+  const listId = data.listId
   const time = data.time
   const listData = data.listData
   const listTitle = data.listTitle
+  console.log(uid);
   // console.log(listTitle);
   // console.log(listData);
   // console.log(uuid);
   // console.log(time);
-  db.ref(`lists/${uuid}`).set({
+  db.ref(`lists/${listId}`).set({
     title: listTitle,
     lists: listData,
     time: time
@@ -86,6 +97,21 @@ app.post("/save/list", async (req, res) => {
   res.json({ msg: "dbok" });
   // db.ref(`lists/`).on("value", snapshot => res.json({ data: snapshot.val() }))
 });
+
+// create userデータの登録
+app.post('/regist/user', async (req, res) => {
+  const user = JSON.parse(req.body)
+  const uid = user.uid
+  const name = user.name
+  console.log(user);
+  console.log(name);
+  console.log(uid);
+  db.ref(`lists/${uid}`).set({
+    username: name,
+    apicount: 0
+  })
+  res.json({ username: name, apicount: 0 })
+})
 
 ////////////////////////////////////////////////////
 
