@@ -36,7 +36,8 @@ export default {
   props: {
     listsData: [Array, Object],
     listContainerHeight: String,
-    baseURL: String
+    baseURL: String,
+    uid: String
   },
   data: () => {
     return {
@@ -50,7 +51,7 @@ export default {
       if (!newTitle || newTitle === oldTitle) {
         return
       } else {
-        fetch(this.baseURL + `update/list?key=${key}&newtitle=${newTitle}`)
+        fetch(this.baseURL + `update/list?key=${key}&newtitle=${newTitle}&uid=${this.uid}`)
         .then(res => res.json())
         .then(data => {
           console.log(data);
@@ -61,7 +62,7 @@ export default {
     deleteList(key) {
       // console.log(key);
       // console.log(this.baseURL);
-      fetch(this.baseURL + `delete/list?key=${key}`).then(res => res.json())
+      fetch(this.baseURL + `delete/list?key=${key}&uid=${this.uid}`).then(res => res.json())
         .then(data => {
           console.log(data);
           this.$emit('save-return-list')
@@ -82,7 +83,7 @@ export default {
     // }
   },
   mounted() {
-    
+    console.log(this.listsData);
   }
 }
 </script>

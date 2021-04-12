@@ -121,13 +121,14 @@ export default {
       this.listTitle = ''
       this.todos.splice(0, this.todos.length)
     },
-    async saveListToDB(uid) {
+    async saveListToDB(uid, count) {
       if (this.todos.length === 0) {
         return
       }
       // console.log('saveing');
 
       console.log(uid);
+      console.log(count);
 
       const listData = localStorage.getItem('Lister')
       let listTitle = localStorage.getItem('ListTitle')
@@ -139,6 +140,7 @@ export default {
 
       const json = JSON.stringify({
         uid,
+        count,
         listId, 
         time, 
         listData, 

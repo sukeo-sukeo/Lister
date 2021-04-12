@@ -28,6 +28,7 @@ export default {
   props: {
     isLogin: Boolean,
     apiCounter: Number,
+    uid: String,
     videoHeight: String,
     createBtnHeight: String,
     baseURL: String
@@ -85,17 +86,24 @@ export default {
       this.sendImage(imgData)
     },
     sendImage(imgData) {
+      const json = JSON.stringify({
+        img: imgData,
+        uid: this.uid,
+        count: this.apiCounter
+      })
       const data = {
         method: "POST",
-        body: imgData
+        body: json
       }
 
       // console.log(this.baseURL);
       this.loading = true
 
       fetch(this.baseURL + "posts", data)
-        .then(res => res.text())
+        .then(res => res.json())
         .then(data => {
+          console.log(data.result);
+          console.log(data.apicount);
           this.$emit('fetch-result-data', data)
           this.loading = false
         })

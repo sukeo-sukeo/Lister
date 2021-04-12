@@ -38,17 +38,24 @@ app.get('/v1/test', (req, res) => {
 // 初期読み出し
 // read
 app.get('/load/lists', async (req, res) => {
-  db.ref('lists/').once("value", snapshot => res.json({ data: snapshot.val() }))}
+  const uid = req.query.uid
+  db.ref(`lists/${uid}`).once("value", snapshot => res.json({ data: snapshot.val() }))}
   )
 
 // 指定の1件の読み出し
 // read
-app.get("/load/list", async (req, res) => db.ref('lists/' + req.query.id).once("value", snapshot => res.json({data: snapshot.val() })));
+app.get("/load/list", async (req, res) => {
+  const listID = req.query.id
+  const uid = req.query.uid
+  db.ref(`lists/${uid}/${listID}`).once("value", snapshot => res.json({ data: snapshot.val() }))
+});
 
 // 指定の1件の削除
 // delete
 app.get("/delete/list", async (req, res) => {
-  db.ref("lists/" + req.query.key).remove();
+  const listID = req.query.key
+  const uid = req.query.uid
+  db.ref(`lists/${uid}/${listID}`).remove();
   res.json({msg: 'dbok'})
   // db.ref('lists/').on("value", snapshot => res.json({ data: snapshot.val() }))
 });
@@ -57,10 +64,11 @@ app.get("/delete/list", async (req, res) => {
 // 該当するキーのtitle:をnewTitleへ変更
 // update(listのタイトル)
 app.get("/update/list", async (req, res) => {
-  const key = req.query.key;
+  const listID = req.query.key;
   const newTitle = req.query.newtitle;
+  const uid = req.query.uid
   // dbをアップデート
-  db.ref("lists/").child(key).update({ title: newTitle });
+  db.ref(`lists/${uid}`).child(listID).update({ title: newTitle });
   // console.log(tmp);
   res.json({ msg: "dbok" });
   // アップデート後の呼び出し
@@ -80,16 +88,17 @@ app.post("/load/user", async (req, res) => {
 app.post("/save/list", async (req, res) => {
   const data = JSON.parse(req.body)
   const uid = data.uid
+  const count = data.count
   const listId = data.listId
   const time = data.time
   const listData = data.listData
   const listTitle = data.listTitle
-  console.log(uid);
+  console.log(uid, count);
   // console.log(listTitle);
   // console.log(listData);
   // console.log(uuid);
   // console.log(time);
-  db.ref(`lists/${listId}`).set({
+  db.ref(`lists/${uid}/${listId}`).set({
     title: listTitle,
     lists: listData,
     time: time
@@ -119,7 +128,14 @@ app.post('/regist/user', async (req, res) => {
 // ocr処理
 app.post("/posts", async (req, res) => {
   console.log('posts');
-  const b64img = req.body.split(',')[1]
+  const data = JSON.parse(req.body)
+
+  let apicount = data.count
+  const uid = data.uid
+  const imgData = data.img
+  console.log(uid, 'apicount:', apicount);
+  
+  const b64img = imgData.split(',')[1]
   const base64 = require("urlsafe-base64");
   const img = base64.decode(b64img);
   
@@ -129,8 +145,9 @@ app.post("/posts", async (req, res) => {
     result = 'テキストが認識できませんでした'
   }
 
-  // db.ref("users/").child(id).update({ apicount:  });
-  res.status(200).send(result)
+  apicount++
+  db.ref(`lists/${uid}`).update({ apicount : apicount });
+  res.status(200).json({ result, apicount })
 
 });
 

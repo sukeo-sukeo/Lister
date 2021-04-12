@@ -4,6 +4,7 @@
     <header-bar
     :isLogin="isLogin"
     :currentView="currentView"
+    :username="username"
     @logout-btn-click="logout"
     @title-logo-click="toVideoView"
     @plus-icon-click="addListLine"
@@ -26,6 +27,7 @@
         @fetch-result-data="textToData"
         :isLogin="isLogin"
         :baseURL="baseURL"
+        :uid="uid"
         :apiCounter="apiCounter"
         :videoHeight="videoHeight"
         :createBtnHeight="createBtnHeight"
@@ -37,6 +39,7 @@
         @save-return-list="fetchAllListData"
         :baseURL="baseURL"
         :listContainerHeight="listContainerHeight"
+        :uid="uid"
         :todoText="todoText"
         v-touch:swipe.left="toloadView"
         v-touch:swipe.right="toVideoView"
@@ -46,6 +49,7 @@
         @db-listdata-click="fetchOneListData"
         @save-return-list="fetchAllListData"
         :baseURL="baseURL"
+        :uid="uid"
         :listsData="listsData"
         :listContainerHeight="listContainerHeight"
         v-touch:swipe.right="toListView"
@@ -151,7 +155,9 @@ export default {
       }
     },
     loginAskAleart() {
-      this.$refs.useVideoContainerMethods.stop()
+      if (this.currentView.video) {
+        this.$refs.useVideoContainerMethods.stop()
+      }
       this.toLoginView()
     },
     registedUserToDB(uid, name) {
@@ -171,6 +177,11 @@ export default {
           console.log(data);
           alert(`${data.username}様！
           登録完了しました。ログインしてください。`)
+         firebase.auth().signOut().then(() => {
+             this.isLogin = false
+             this.uid = ''
+             this.username = ''
+           })
         })
         .catch(err => {
           console.log(err);
@@ -198,6 +209,7 @@ export default {
           this.username = data.data.username
           this.apiCounter = data.data.apicount
           console.log(this.uid, this.username, this.apiCounter);
+          this.updateLoadContainer(data.data)
           this.toVideoView()
         })
         .catch(() => {
@@ -224,16 +236,27 @@ export default {
           }
           break; 
         case 'save':
+          if (this.currentView.login) {
+            return
+          }
           if (!this.isLogin) {
             alert('saveを使うにはログインをしてください')
             this.loginAskAleart()
             return
           }
           if (this.currentView.list) {
-            this.$refs.useListContainerMethods.saveListToDB(this.uid)
+            this.$refs.useListContainerMethods.saveListToDB(this.uid, this.apiCounter)
           }
           break; 
         case 'load':
+          if (this.currentView.login) {
+            return
+          }
+          if (!this.isLogin) {
+            alert('loadを使うにはログインをしてください')
+            this.loginAskAleart()
+            return
+          }
           if (this.currentView.load) {
             return
           } else {
@@ -279,12 +302,14 @@ export default {
       }
     },
     textToData(data) {
-      this.apiCounter ++
-      this.todoText = data
+      this.todoText = data.result
+      this.apiCounter = data.apicount
       this.$refs.useVideoContainerMethods.stop()
       this.toListView()
     },
     updateLoadContainer(data) {
+      delete data.apicount
+      delete data.username
       if (data) {
         this.listsData = data
       } else {
@@ -293,7 +318,7 @@ export default {
     },
     fetchOneListData(dataKey) {
       this.clickInLoadList = false
-      fetch(this.baseURL + `load/list?id=${dataKey}`)
+      fetch(this.baseURL + `load/list?id=${dataKey}&uid=${this.uid}`)
       .then(res => res.json())
       .then(data => {
         // console.log(data.data);
@@ -306,7 +331,7 @@ export default {
       })
     },
     fetchAllListData() {
-      fetch(this.baseURL + `load/lists`)
+      fetch(this.baseURL + `load/lists?uid=${this.uid}`)
       .then(res => res.json())
       .then(data => {
         // console.log(data.data);
@@ -315,36 +340,33 @@ export default {
     },
   },
   created() {
-    const user = firebase.auth().currentUser;
+    // const user = firebase.auth().currentUser;
 
-    if (user) {
-        console.log('ログイン中です', user);
-      this.isLogin = true
-      this.uid = user.uid
-      // User is signed in.
-      console.log('uid:', this.uid);
-      // User is signed in.
-    } else {
-        console.log('ログインしていません');
-      this.isLogin = false        
-      // No user is signed in.
-      console.log('uid:', this.uid);
-      // No user is signed in.
-    }
-    // firebase.auth().onAuthStateChanged(user => {
-    //   if (user) {
+    // if (user) {
     //     console.log('ログイン中です', user);
-    //     this.isLogin = true
-    //     this.uid = user.uid
-    //     // User is signed in.
-    //     console.log('uid:', this.uid);
-    //   } else {
+    //   this.isLogin = true
+    //   this.uid = user.uid
+    //   // User is signed in.
+    //   console.log('uid:', this.uid);
+    //   // User is signed in.
+    // } else {
     //     console.log('ログインしていません');
-    //     this.isLogin = false        
-    //     // No user is signed in.
-    //     console.log('uid:', this.uid);
-    //   }
-    // })
+    //   this.isLogin = false        
+    //   // No user is signed in.
+    //   console.log('uid:', this.uid);
+    //   // No user is signed in.
+    // }
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        console.log('ログイン中です', user);
+        this.getUserToDB(user.uid)
+        // User is signed in. 
+      } else {
+        console.log('ログインしていません');
+        this.isLogin = false        
+        // No user is signed in.
+      }
+    })
 
     if (location.hostname === 'localhost') {
       this.baseURL = `http://localhost:5000/lister-424b3/us-central1/app/`;
@@ -353,7 +375,7 @@ export default {
     }
     console.log(this.baseURL);
     console.log(this.isLogin);
-    this.fetchAllListData()
+    
   },
   mounted() {
     const h_f_px = 112 //52px + 60px
