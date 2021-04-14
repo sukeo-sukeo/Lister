@@ -1,5 +1,6 @@
 # Lister
-### cloud vision apiを使用したスマホ向けWEBアプリ
+## cloud vision apiを使用したスマホ向けWEBアプリ
+![](./reademe.jpg)
 ## 撮影した画像のテキストをOCR機能で読み取りチェックリスト化します
 https://lister-424b3.web.app/  
 `スマートフォンでアクセスください`
