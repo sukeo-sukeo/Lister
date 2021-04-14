@@ -1,26 +1,18 @@
-# frontend
-- 現在は1ブラウザ1ユーザー
-- ユーザーの削除機能をつける
+# Lister
+## cloud vision apiを使用したOCRアプリです
+### 使用技術
+- **vue cli**  
+  vue2-touch-events
+- **node.js**  
+  express  
+  urlsafe-base64
+- **firebase**  
+  hosting  
+  realtimedatabase  
+  authentication  
+  functions
 
-## Project setup
-```
-yarn install
-```
-
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### 機能
+- ログイン機能
+- メールリンク認証機能
+- 
