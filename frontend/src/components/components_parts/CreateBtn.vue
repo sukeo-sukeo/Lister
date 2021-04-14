@@ -45,4 +45,8 @@ export default {
   line-height: 51px;
   text-align: center;
 }
+
+button:focus {
+  outline: 0;
+}
 </style>

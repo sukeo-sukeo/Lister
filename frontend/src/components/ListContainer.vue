@@ -7,7 +7,8 @@
     <li v-for="todo in todos" :key="todo.id">
       <input type="checkbox" :id="todo.id" :value="todo.item" v-model="todo.isDone">
       <label :for="todo.id" :class="{done: todo.isDone}">{{todo.item}}</label>
-      <span @click="doEdit(todo.id, todo.item)">
+      <span class="edit" 
+       @click="doEdit(todo.id, todo.item)">
         <span class="iconify" data-inline="false" data-icon="ic:baseline-edit"></span>
       </span>
       <span class="delete"
@@ -230,9 +231,13 @@ ul {
 }
 
 .iconify {
-  margin-left: 20px;
+  margin-left: 10px;
   opacity: .3;
 }
+
+/* .edit {
+  font-size: 16px;
+} */
 
 .delete {
   float: right;
@@ -254,11 +259,21 @@ ul {
   border: none;
   height: 32px;
   font-size: 28px;
-  width: 80%;
+  width: 60%;
   border-bottom: solid 2px lightgray;
   /* font-family: 'Rhodium Libre', serif; */
   font-style: normal;
   font-weight: normal;
+}
+
+label {
+  display: inline-flex;
+  width: 70%;
+  overflow: scroll;
+}
+
+.input-title:focus {
+  outline: 0;
 }
 
 </style>

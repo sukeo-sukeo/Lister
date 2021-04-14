@@ -79,6 +79,7 @@ app.get("/update/list", async (req, res) => {
 app.post("/load/user", async (req, res) => {
   const data = JSON.parse(req.body);
   const uid = data.uid
+
   db.ref("lists/" + uid).once("value", (snapshot) =>
     res.json({ data: snapshot.val() })
   );
@@ -142,7 +143,7 @@ app.post("/posts", async (req, res) => {
   let result = await ocr.detectText(img)
 
   if (!result) {
-    result = 'テキストが認識できませんでした'
+    result = 'テキストが認識できません'
   }
 
   apicount++

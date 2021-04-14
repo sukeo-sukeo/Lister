@@ -1,9 +1,12 @@
 <template>
-<form>
+<form :style="{height: Number(listContainerHeight) + Number(116) + 'px' }">
+  <loader-circle v-if="loading"/>
   <div class="form-group">
     <div class="input-outer">
       <label for="name">User name</label>
-      <input type="text" id="name" class="name" v-model="user.name">
+      <input
+       :placeholder="inputUsername"
+       type="text" id="name" class="name" v-model="user.name">
     </div>
     <div class="input-outer">
       <label for="email">Email address</label>
@@ -14,8 +17,12 @@
       <input type="password" id="password" class="password" v-model="user.password">
     </div>
     <div class="btn-group">
-      <button @click.prevent.stop="$emit('signup-click', user)">登録</button>
-      <button @click.prevent.stop="$emit('login-click', user)">ログイン</button>
+      <button
+       class="signup-btn"
+       @click.prevent.stop="$emit('signup-click', user)">signUP</button>
+      <button
+       class="login-btn"
+       @click.prevent.stop="$emit('login-click', user)">logIN</button>
     </div>
   </div>
   <div style="height: 50px;"></div>
@@ -23,6 +30,7 @@
 </template>
 
 <script>
+import LoaderCircle from './components_parts/LoaderCircle.vue'
 // import firebase from "firebase/app";
 // import "firebase/auth";
 // firebase.initializeApp({
@@ -31,9 +39,13 @@
 // });
 
 export default {
+  components: { LoaderCircle },
   name: 'LoginContainer',
   props: {
-    isLogin: Boolean
+    loading: Boolean,
+    isLogin: Boolean,
+    inputUsername: String,
+    listContainerHeight: String
   },
   data: () => {
     return {
@@ -45,51 +57,13 @@ export default {
     }
   },
   methods: {
-  //   signup() {
-  //     firebase.auth()
-  //     .createUserWithEmailAndPassword(this.email, this.password)
-  //     .then(user => {
-  //         alert('登録完了！ログインしてください！')
-  //         console.log(user);
-  //         // console.log('Create account: ', user.email)
-  //       })
-  //       .catch(error => {
-  //         console.log(error.message);
-  //         console.log(this.email);
-  //         console.log(this.password);
-  //       })
-  //   },
-  //   login() {
-  //     firebase.auth().signInWithEmailAndPassword(this.email, this.password).then(
-  //       user => {
-  //         console.log(user);
-  //         // this.$router.push('/')
-  //         this.$emit('login-judege', user)
-  //       },
-  //       err => {
-  //         console.log(err.message);
-  //       }
-  //     )
-  //   },
-  //   logout() {
-  //     firebase.auth().signOut().then(user => {
-  //       console.log(user);
-  //     })
-  //   }
+
+    },
+  mounted() {
+
   },
   created() {
-    // login中かチェック
-    // firebase.auth().onAuthStateChanged(user => {
-    //   this.$emit('login-judege', user)
-      // if (user) {
-      //   console.log('singed in', user);
-      //   // User is signed in.
-      // } else {
-      //   console.log('not singed', user);
-      //   this.$emit('login-judege', user)
-      //   // No user is signed in.
-      // }
-    // })
+   
   }
 }
 </script>
@@ -97,7 +71,7 @@ export default {
 <style scoped>
 form {
   /* widows: 100vw; */
-  height: 90vh;
+  /* height: 90vh; */
   background: black; 
   display: flex;
   flex-direction: column;
@@ -111,10 +85,13 @@ form {
 }
 
 .btn-group {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 .input-outer {
+  font-family: 'Rhodium Libre', serif;
+  font-style: normal;
+  font-weight: normal;
   color: white;
   display: flex;
   flex-direction: column;
@@ -124,14 +101,44 @@ form {
 }
 
 .name, .email, .password {
-  font-size: 24px;
+  font-family: 'Rhodium Libre', serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
   color: white;
   outline: none;
-  height: 30px;
+  height: 24px;
   background: black;
   border: none;
   border-bottom: solid 2px white;
   /* display: flex;
   flex-direction: column; */
 }
+
+input:focus {
+  outline: 0;
+}
+
+button:focus {
+  outline: 0;
+}
+
+.login-btn, .signup-btn {
+	/* position: relative; */
+  font-family: 'Rhodium Libre', serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+	width: 80px;
+	padding: 0.8em;
+	text-align: center;
+	font-weight: bold;
+	text-decoration: none;
+  background: black;
+	color: white;
+  border: none;
+	/* transition: .4s; */
+}
+
+
 </style>

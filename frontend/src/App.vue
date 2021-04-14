@@ -14,6 +14,9 @@
       <login-container
       @signup-click="signup"
       @login-click="login"
+      :listContainerHeight="listContainerHeight"
+      :loading="loading"
+      :inputUsername="inputUsername"
       v-if="currentView.login"
       />
     </transition>
@@ -41,7 +44,7 @@
         :listContainerHeight="listContainerHeight"
         :uid="uid"
         :todoText="todoText"
-        v-touch:swipe.left="toloadView"
+        v-touch:swipe.left="isLogin? toloadView: notLogined"
         v-touch:swipe.right="toVideoView"
         />
         <load-container
@@ -69,8 +72,7 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 firebase.initializeApp({
-  apiKey: "AIzaSyCn0K_3qeXuXFVc-PMNrjeZoE80_PLHq-o",
-  // authDomain: "https://lister-424b3.firebaseapp.com/",
+  apiKey: process.env.VUE_APP_APIKEY
 });
 
 import HeaderBar from './components/HeaderBar.vue'
@@ -97,6 +99,7 @@ export default {
       createBtnHeight: '',
       listContainerHeight: '',
       baseURL: '',
+      signUpRedirectURL: '',
       video: '',
       todoText: '',
       listsData: [],
@@ -110,41 +113,82 @@ export default {
       uid: '',
       username: '',
       apiCounter: 0,
+      loading: false,
+      inputUsername: ''
       // clickInLoadList: false
     }
   },
   methods: {
     signup(user) {
+      if (!user.name) {
+        alert('User Nameを入力してください')
+        // this.loading = false
+        return
+      }
+      this.loading = true
       firebase.auth()
       .createUserWithEmailAndPassword(user.email, user.password)
       .then(registed => {
-        console.log(registed);
         console.log(registed.user.uid, user.name);
-        this.registedUserToDB(registed.user.uid, user.name)
+
+        // mailリンク送信
+          const userF = firebase.auth().currentUser;
+          if (userF !== null) {
+            userF.sendEmailVerification({url: this.signUpRedirectURL})
+            .then(() => {
+              alert('メールのリンクからログインを完了してください')
+              this.registedUserToDB(registed.user.uid, user.name)
+            })
+            .catch(() => {
+              alert('メールが送信できませんでした')
+              user.delete()
+              .then(() => {
+                console.log('user削除');
+              })
+            })
+          }
+       
         })
         .catch(error => {
-          alert('登録できませんでした...')
           console.log(error.message);
+          alert('登録できませんでした...')
+          this.loading = false
         })
     },
     login(user) {
+      this.loading = true
       firebase.auth().signInWithEmailAndPassword(user.email, user.password).then(
         registUser => {
-          this.getUserToDB(registUser.user.uid)
+          console.log(registUser);
+          if (registUser !== null) {
+            if (registUser.user.emailVerified) {
+              this.getUserToDB(registUser.user.uid)
+            } else {
+              alert('メールのリンクからログインを完了してください')
+            }
+          } else {
+            alert('登録が見つかりませんでした...')
+          }
+          this.loading = false 
         },
         err => {
           console.log(err.message);
           alert('登録が見つかりませんでした...')
+          this.loading = false
         }
       )
     },
     logout() {
+      if (this.currentView.login) {
+        return
+      }
       if (this.isLogin) {
          if (confirm('ログアウトしますか?')) {
            firebase.auth().signOut().then(() => {
              this.isLogin = false
              this.uid = ''
              this.username = ''
+             this.inputUsername = ''
              alert('ログアウトしました')
            })
          } else {
@@ -161,11 +205,7 @@ export default {
       this.toLoginView()
     },
     registedUserToDB(uid, name) {
-      const json = JSON.stringify({
-        uid,
-        name
-      })
-
+      const json = JSON.stringify({uid,name})
       const data = {
         method: "POST",
         body: json
@@ -174,27 +214,23 @@ export default {
       fetch(this.baseURL + "regist/user", data)
         .then(res => res.json())
         .then(data => {
+          this.loading = false
           console.log(data);
-          alert(`${data.username}様！
-          登録完了しました。ログインしてください。`)
-         firebase.auth().signOut().then(() => {
-             this.isLogin = false
-             this.uid = ''
-             this.username = ''
-           })
         })
         .catch(err => {
           console.log(err);
+          alert(`データベースへの登録が失敗しました
+            再度サインアップをしてください`, user);
           const user = firebase.auth().currentUser;
           user.delete().then(() => {
-            console.log('deleted: 登録失敗', user);
+            console.log('ユーザー削除');
           }).catch((error) => {
             console.log(error);
             // An error happened.
           });
         })
     },
-    getUserToDB(uid) {
+    getUserToDB(uid, name="") {
       const json = JSON.stringify({uid})
       const data = {
         method: "POST",
@@ -203,8 +239,12 @@ export default {
       fetch(this.baseURL + "load/user", data)
         .then(res => res.json())
         .then(data => {
+          // if (name !== "" && data.data.username !== name) {
+          console.log(name);
+          // }
           console.log(data.data);
           this.isLogin = true
+          this.loading = false
           this.uid = uid
           this.username = data.data.username
           this.apiCounter = data.data.apicount
@@ -338,29 +378,24 @@ export default {
         this.updateLoadContainer(data.data)
       })
     },
+    notLogined() {
+      alert('loadを使うにはログインをしてください')
+    }
   },
   created() {
-    // const user = firebase.auth().currentUser;
-
-    // if (user) {
-    //     console.log('ログイン中です', user);
-    //   this.isLogin = true
-    //   this.uid = user.uid
-    //   // User is signed in.
-    //   console.log('uid:', this.uid);
-    //   // User is signed in.
-    // } else {
-    //     console.log('ログインしていません');
-    //   this.isLogin = false        
-    //   // No user is signed in.
-    //   console.log('uid:', this.uid);
-    //   // No user is signed in.
-    // }
+    // ログイン状態をチェック
+    // userがあってかつメール認証が済んでいればログイン
     firebase.auth().onAuthStateChanged(user => {
+      console.log(user);
       if (user) {
-        console.log('ログイン中です', user);
-        this.getUserToDB(user.uid)
-        // User is signed in. 
+        console.log(user.emailVerified);
+        if (user.emailVerified) {
+          console.log('ログイン中です', user);
+          this.getUserToDB(user.uid)
+          // User is signed in. 
+        } else {
+          console.log('リンクを踏んでいない');
+        }
       } else {
         console.log('ログインしていません');
         this.isLogin = false        
@@ -370,8 +405,10 @@ export default {
 
     if (location.hostname === 'localhost') {
       this.baseURL = `http://localhost:5000/lister-424b3/us-central1/app/`;
+      this.signUpRedirectURL = 'http://localhost:8080/'
     } else {
       this.baseURL = 'https://us-central1-lister-424b3.cloudfunctions.net/app/'
+      this.signUpRedirectURL = 'https://lister-424b3.web.app/' 
     }
     console.log(this.baseURL);
     console.log(this.isLogin);

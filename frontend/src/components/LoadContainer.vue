@@ -14,12 +14,12 @@
         <span class="iconify" data-inline="false" data-icon="ic:baseline-edit"></span>
       </span>
       <span class="delete"
-        @click="deleteList(key)">
+        @click="deleteList(key, listData.title)">
         <span class="iconify"
         data-inline="false" data-icon="ic:baseline-delete"></span>
       </span>
       <small class="time">
-        {{listData.time}}
+        saved {{listData.time}}
       </small>
     </li>
   </ul>
@@ -59,28 +59,15 @@ export default {
         })
       }
     },
-    deleteList(key) {
-      // console.log(key);
-      // console.log(this.baseURL);
-      fetch(this.baseURL + `delete/list?key=${key}&uid=${this.uid}`).then(res => res.json())
-        .then(data => {
-          console.log(data);
-          this.$emit('save-return-list')
-        })
+    deleteList(key, title) {
+      if (confirm(`${title}を削除しますか?`)) {
+        fetch(this.baseURL + `delete/list?key=${key}&uid=${this.uid}`).then(res => res.json())
+          .then(data => {
+            console.log(data);
+            this.$emit('save-return-list')
+          })
+      }
     },
-    // objRevers() {
-    //   console.log(this.listsData);
-    //   // console.log(Object.values(this.listsData));
-    //   const tmp = Object.values(this.listsData).sort(function(a, b) {
-    //     if (a.time > b.time) {
-    //         return -1;
-    //     } else {
-    //         return 1;
-    //     }
-    //   });
-    //   this.reversedListData = tmp
-    //   console.log(this.reversedListData);
-    // }
   },
   mounted() {
     console.log(this.listsData);
@@ -117,7 +104,9 @@ ul {
   line-height: 38px;
   float: right;
 }
-
+.edit {
+  font-size: 16px;
+}
 .delete {
   float: right;
 }

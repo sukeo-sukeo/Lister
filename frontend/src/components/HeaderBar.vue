@@ -12,7 +12,6 @@
     <login-btn 
     @log-btn-click="$listeners['logout-btn-click']"
     v-show="!currentView.list"
-    v-if="!currentView.login"
     :isLogin="isLogin"
     />
   </div>
